@@ -1,19 +1,14 @@
-# Mini LLM
+# Mini LLM from Scratch
 
-A lightweight transformer-based language model implementation built with PyTorch, designed for educational purposes and experimentation.
+A lightweight transformer-based language model built from scratch with PyTorch, designed for code assistance and conversational AI.
 
-## Overview
+## 🚀 Features
 
-This project implements a mini version of a Large Language Model (LLM) using transformer architecture. It includes a complete pipeline for training, testing, and text generation with a custom tokenizer and model architecture.
-
-## Features
-
-- **Transformer Architecture**: Multi-head attention mechanism with feed-forward networks
-- **Custom Tokenizer**: Character-level tokenization for text processing
-- **Training Pipeline**: Complete training loop with loss monitoring and visualization
-- **Text Generation**: Inference capabilities with temperature-controlled sampling
-- **Code Assistant Training**: Specialized training for code-related tasks
-- **Model Persistence**: Save and load trained models
+- **Multi-language code support**: PHP, React/React Native, Python, Symfony, API Platform, JavaScript
+- **Conversational abilities**: Understands natural language questions about code
+- **Configurable training**: Flexible parameters for different use cases
+- **Efficient architecture**: Optimized for small-scale deployment
+- **Training analysis**: Tools to decide when to train more vs add more data
 
 ## Project Structure
 
@@ -54,57 +49,179 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## Usage
+## 🔧 Usage
 
-### Training a Model
+### Basic Training
 
+Train with default settings (40 epochs):
 ```bash
-python train.py
+python3 train_code_assistant.py
 ```
 
-This will train a mini LLM on sample text data and save the model weights to `mini_llm.pth`.
-
-### Testing and Text Generation
+### Custom Training Parameters
 
 ```bash
-python test_model.py
+# Quick training (10 epochs)
+python3 train_code_assistant.py --epochs 10
+
+# High-performance training
+python3 train_code_assistant.py --epochs 50 --lr 1e-3 --batch_size 8
+
+# Memory-efficient training
+python3 train_code_assistant.py --epochs 20 --seq_len 64 --batch_size 2
+
+# Custom checkpoint frequency
+python3 train_code_assistant.py --epochs 30 --save_every 5
 ```
 
-Generate text using the trained model with customizable prompts and parameters.
+### Available Parameters
 
-### Code Assistant Training
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `--epochs` | 40 | Number of training epochs |
+| `--lr` | 5e-4 | Learning rate |
+| `--batch_size` | 4 | Training batch size |
+| `--seq_len` | 128 | Input sequence length |
+| `--save_every` | 10 | Save checkpoint every N epochs |
+
+### Testing Your Model
 
 ```bash
-python train_code_assistant.py
+# Test with various code prompts
+python3 test_model.py
+
+# Improved testing with better sampling
+python3 improved_test.py
 ```
 
-Train a specialized version for code-related tasks.
+## 📊 Training Strategy
 
-## Model Architecture
+### When to Train More vs Add More Data
 
-The model implements a standard transformer architecture with:
+Run the analysis tool to understand your training progress:
 
-- **Multi-Head Attention**: Parallel attention mechanisms for better representation learning
-- **Feed-Forward Networks**: Position-wise fully connected layers
-- **Layer Normalization**: Stabilizes training and improves convergence
-- **Positional Encoding**: Enables the model to understand sequence order
+```bash
+python3 training_analysis.py
+```
 
-### Key Components
+**Guidelines:**
+- **Loss still decreasing** → Continue training
+- **Loss plateaued** → Add more data
+- **Early epochs (<20)** → Keep training
+- **Overfitting signs** → Stop training, add data
 
-- `MultiHeadAttention`: Implements scaled dot-product attention
-- `FeedForward`: Position-wise feed-forward network
-- `TransformerBlock`: Complete transformer layer with attention and feed-forward
-- `MiniLLM`: Full model combining embedding, transformer blocks, and output layers
+### Data Expansion Options
 
-## Configuration
+1. **Synthetic Generation** (Easy, 10-20x data)
+   ```bash
+   python3 expand_data.py
+   ```
 
-Default model parameters:
-- Vocabulary size: Based on input text character set
-- Model dimension: 128
-- Number of heads: 8
-- Number of layers: 4
-- Feed-forward dimension: 512
-- Sequence length: 64
+2. **Documentation Mining** (Medium effort, 5-10x data)
+   - Official framework documentation
+   - Tutorial examples
+
+3. **Web Scraping** (High effort, 50-100x data)
+   - GitHub repositories
+   - Code examples from blogs
+
+## 🎯 Model Architecture
+
+- **Type**: Decoder-only Transformer
+- **Attention**: Multi-head self-attention with causal masking
+- **Layers**: 8 transformer blocks
+- **Embedding**: 384 dimensions
+- **Vocabulary**: Character-level tokenization
+- **Context**: Up to 512 tokens
+
+**Model Specifications:**
+```python
+MiniLLM(
+    vocab_size=tokenizer.vocab_size,
+    d_model=384,      # Embedding dimension
+    n_heads=12,       # Attention heads
+    n_layers=8,       # Transformer layers
+    d_ff=1536,        # Feed-forward dimension
+    max_seq_len=512,  # Maximum sequence length
+    dropout=0.1       # Dropout rate
+)
+```
+
+## 🔄 Training Process
+
+1. **Data Preparation**: Combines conversational patterns with code examples
+2. **Tokenization**: Character-level encoding for multi-language support
+3. **Training**: AdamW optimizer with cosine learning rate scheduling
+4. **Checkpointing**: Regular model saves for resuming training
+5. **Generation**: Top-k sampling for coherent code completion
+
+## 💡 Example Usage
+
+### Code Completion
+```python
+# Input: "function calculateTotal("
+# Output: "function calculateTotal(items) { return items.reduce((sum, item) => sum + item.price, 0); }"
+```
+
+### Conversational Code Help
+```python
+# Input: "How do I create a PHP class?"
+# Output: "You can create a PHP class using the class keyword followed by the class name..."
+```
+
+## 📈 Performance Tips
+
+### Training Optimization
+- **GPU**: Use CUDA if available for faster training
+- **Batch Size**: Increase for faster training (if memory allows)
+- **Sequence Length**: Shorter sequences train faster
+- **Learning Rate**: Start with 5e-4, adjust based on loss curve
+
+### Memory Optimization
+- Reduce `batch_size` if running out of memory
+- Use shorter `seq_len` for efficiency
+- Enable gradient checkpointing for large models
+
+### Quality Improvement
+- Train longer when loss is still decreasing
+- Add more diverse training data when loss plateaus
+- Use lower temperature (0.5-0.7) for more focused generation
+- Implement top-k sampling for better code quality
+
+## 🔍 Monitoring Training
+
+Watch for these patterns:
+- **Healthy**: Steady loss decrease, stable learning
+- **Overfitting**: Loss starts increasing or oscillating
+- **Plateaued**: Loss stops decreasing (time for more data)
+- **Underfitting**: Very high loss, needs more training
+
+## 🛠️ Troubleshooting
+
+### Common Issues
+
+**Out of Memory**:
+```bash
+python3 train_code_assistant.py --batch_size 2 --seq_len 64
+```
+
+**Training Too Slow**:
+```bash
+python3 train_code_assistant.py --batch_size 8 --epochs 20
+```
+
+**Poor Generation Quality**:
+1. Train longer if loss is decreasing
+2. Add more training data if loss plateaued
+3. Adjust temperature in generation (0.5-0.8)
+
+### File Locations
+
+After training, you'll find:
+- `code_assistant_model.pth` - Trained model weights
+- `code_assistant_tokenizer.pth` - Tokenizer for encoding/decoding
+- `code_assistant_training_loss.png` - Loss curve visualization
+- `code_assistant_checkpoint_epoch_*.pth` - Training checkpoints
 
 ## Requirements
 

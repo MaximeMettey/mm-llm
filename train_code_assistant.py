@@ -20,7 +20,7 @@ class CodeDataset(Dataset):
         chunk = self.tokens[idx:idx + self.seq_len + 1]
         return torch.tensor(chunk[:-1]), torch.tensor(chunk[1:])
 
-def train_code_assistant(num_epochs=40, lr=5e-4):
+def train_code_assistant(num_epochs=40, lr=5e-4, batch_size=4, seq_len=128, save_every=10):
     """Train a code assistant model"""
     
     print("Loading code assistant dataset...")
@@ -33,9 +33,9 @@ def train_code_assistant(num_epochs=40, lr=5e-4):
     tokenizer.build_vocab(training_data)
     print(f"Vocabulary size: {tokenizer.vocab_size}")
     
-    # Create dataset with longer sequences for code
-    dataset = CodeDataset(training_data, tokenizer, seq_len=128)
-    dataloader = DataLoader(dataset, batch_size=4, shuffle=True, num_workers=0)
+    # Create dataset with configurable sequences for code
+    dataset = CodeDataset(training_data, tokenizer, seq_len=seq_len)
+    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=0)
     
     # Larger model for code understanding
     model = MiniLLM(
@@ -92,8 +92,8 @@ def train_code_assistant(num_epochs=40, lr=5e-4):
         
         print(f'Epoch {epoch+1}: Loss = {avg_loss:.4f}, LR = {scheduler.get_last_lr()[0]:.2e}')
         
-        # Save checkpoint every 10 epochs
-        if (epoch + 1) % 10 == 0:
+        # Save checkpoint every save_every epochs
+        if (epoch + 1) % save_every == 0:
             torch.save({
                 'epoch': epoch,
                 'model_state_dict': model.state_dict(),
@@ -148,10 +148,33 @@ def generate_code(model, tokenizer, prompt, max_length=200, temperature=0.7):
     return tokenizer.decode(tokens[0].cpu().tolist())
 
 if __name__ == "__main__":
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='Train Code Assistant LLM')
+    parser.add_argument('--epochs', type=int, default=40, help='Number of training epochs')
+    parser.add_argument('--lr', type=float, default=5e-4, help='Learning rate')
+    parser.add_argument('--batch_size', type=int, default=4, help='Batch size')
+    parser.add_argument('--seq_len', type=int, default=128, help='Sequence length')
+    parser.add_argument('--save_every', type=int, default=10, help='Save checkpoint every N epochs')
+    
+    args = parser.parse_args()
+    
     print("Training Code Assistant LLM")
     print("=" * 50)
+    print(f"Epochs: {args.epochs}")
+    print(f"Learning Rate: {args.lr}")
+    print(f"Batch Size: {args.batch_size}")
+    print(f"Sequence Length: {args.seq_len}")
+    print(f"Save Every: {args.save_every} epochs")
+    print("=" * 50)
     
-    model, tokenizer, losses = train_code_assistant(num_epochs=40, lr=5e-4)
+    model, tokenizer, losses = train_code_assistant(
+        num_epochs=args.epochs,
+        lr=args.lr,
+        batch_size=args.batch_size,
+        seq_len=args.seq_len,
+        save_every=args.save_every
+    )
     
     print("\nTesting code generation...")
     test_prompts = [
