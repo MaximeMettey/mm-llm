@@ -149,12 +149,6 @@ wandb/
 # Data files
 data/
 datasets/
-*.csv
-*.json
-*.txt
-*.tsv
-*.parquet
-*.pickle
 
 # Training artifacts
 training_*.png
